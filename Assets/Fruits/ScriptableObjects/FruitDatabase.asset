@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 145b76dbb7810f043bbe98729b96938a, type: 3}
+  m_Name: FruitDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::FruitDatabase
+  fruits:
+  - name: Earth
+    prefab: {fileID: 8085130714029959363, guid: 1a2fa1a8ec560174a80748467060a96c, type: 3}
+    icon: {fileID: 7393809594449937967, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 10
+  - name: Mars
+    prefab: {fileID: 8085130714029959363, guid: 2325f7b21c7d61445b9b32a8f3288e02, type: 3}
+    icon: {fileID: -8325575890120854849, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 25
+  - name: Purple
+    prefab: {fileID: 8085130714029959363, guid: 48a5741156ebdba42bfcc668fb17b6d6, type: 3}
+    icon: {fileID: 2565739827787244138, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 50
+  - name: Green
+    prefab: {fileID: 8085130714029959363, guid: 6af50b426b476a14faf4d163ee64a9f0, type: 3}
+    icon: {fileID: -8843376039688045362, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 100
+  - name: Swirl
+    prefab: {fileID: 8085130714029959363, guid: 5fabbcbf69654b5448812f28d96204e3, type: 3}
+    icon: {fileID: -5252716254558547883, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 100
+  - name: Ring
+    prefab: {fileID: 8085130714029959363, guid: 8f76d5638392c3a488aaaf9ff4175322, type: 3}
+    icon: {fileID: 7766487869511931128, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 100
+  - name: Red
+    prefab: {fileID: 8085130714029959363, guid: 9a5098f9c93419a428020face352c58c, type: 3}
+    icon: {fileID: 7064146660073765520, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+    basePoints: 100
