@@ -46,6 +46,10 @@ public class MergeParticlesListener : MonoBehaviour
         int extraBurst = extraWithCombo ? Mathf.Max(0, combo - 1) * extraBurstPerCombo : 0;
         int extraSpark = extraWithCombo ? Mathf.Max(0, combo - 1) * extraSparklesPerCombo : 0;
 
+        foreach (Transform item in set.GetComponentInChildren<Transform>())
+        {
+            item.transform.localScale = new Vector3(s,s,s);
+        }
         set.Play(pos, s, extraBurst, extraSpark);
 
         // return to pool when done

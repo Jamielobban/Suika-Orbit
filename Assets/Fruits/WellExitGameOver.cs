@@ -38,7 +38,7 @@ public class WellExitGameOver : MonoBehaviour
 
         if (outside.Count > 0)
         {
-            Debug.Log("tIME STARTED");
+            //Debug.Log("Time out started");
             if (deadline < 0f) deadline = Time.time + timeOutsideToLose;
 
             if (Time.time >= deadline)

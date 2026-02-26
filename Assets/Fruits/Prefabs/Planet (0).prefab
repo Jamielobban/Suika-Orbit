@@ -12,10 +12,11 @@ GameObject:
   - component: {fileID: 4037440644537711339}
   - component: {fileID: 2865270356997045949}
   - component: {fileID: 8085130714029959363}
-  - component: {fileID: 6208065189452395120}
-  - component: {fileID: 3221567465419077391}
+  - component: {fileID: 1339733299572743025}
+  - component: {fileID: 4524645385799547189}
+  - component: {fileID: 6848769061256474274}
   m_Layer: 7
-  m_Name: Planet (3)
+  m_Name: Planet (0)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,11 +31,11 @@ Transform:
   m_GameObject: {fileID: 416474445991531329}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.83, y: -0.83, z: 0}
+  m_LocalPosition: {x: 1.63, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 4113724036145676309}
+  - {fileID: 4142185072875577160}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &4037440644537711339
@@ -72,7 +73,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1.6
+  m_Radius: 0.5
 --- !u!50 &2865270356997045949
 Rigidbody2D:
   serializedVersion: 5
@@ -85,7 +86,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 80
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
@@ -112,9 +113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51763860315cff7459da3dfcf3469d52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Fruit
-  level: 3
+  level: 0
   database: {fileID: 11400000, guid: e307573384769234abc49440f95cebf6, type: 2}
---- !u!114 &6208065189452395120
+--- !u!114 &1339733299572743025
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,7 +218,7 @@ MonoBehaviour:
   DebugActive: 0
   InScriptDrivenPause: 0
   FeedbacksList:
-  - rid: 2301259723393204328
+  - rid: 8142825388888293464
   KeepPlayModeChanges: 0
   PerformanceMode: 0
   RestoreInitialValuesOnDisable: 0
@@ -229,11 +230,11 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2301259723393204328
+    - rid: 8142825388888293464
       type: {class: MMF_SquashAndStretchSpring, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
       data:
         Active: 1
-        UniqueID: 1540838672
+        UniqueID: 1201382959
         Label: Squash and Stretch Spring
         OriginalLabel: Squash and Stretch Spring
         ChannelMode: 0
@@ -301,9 +302,9 @@ MonoBehaviour:
         RemapRangeFalloff: {x: 0, y: 1}
         AutomaticShakerSetupButton:
           ButtonText: 
-        Owner: {fileID: 6208065189452395120}
+        Owner: {fileID: 1339733299572743025}
         DebugActive: 0
-        AnimateScaleTarget: {fileID: 4113724036145676309}
+        AnimateScaleTarget: {fileID: 4142185072875577160}
         DeclaredDuration: 0
         Axis: 7
         Damping: 0.2
@@ -313,7 +314,7 @@ MonoBehaviour:
         MoveToMax: 2
         BumpScaleMin: 20
         BumpScaleMax: 30
---- !u!114 &3221567465419077391
+--- !u!114 &4524645385799547189
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -325,8 +326,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9364edfb4e529743a8b851eb543519d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FruitJuiceMMF
-  mergeSquash: {fileID: 6208065189452395120}
---- !u!1 &2322863999027991436
+  mergeSquash: {fileID: 1339733299572743025}
+--- !u!114 &6848769061256474274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 416474445991531329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f009572b4d918346b24337ef83f88c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Tools.MMAutoRotate
+  Rotating: 1
+  RotationSpace: 1
+  UpdateMode: 0
+  RotationSpeed: {x: 0, y: 0, z: 0}
+  RandomizeRotationSpeed: 1
+  RotationSpeedMin: {x: 0, y: 0, z: -35}
+  RotationSpeedMax: {x: 0, y: 0, z: 35}
+  RandomInitialDelay: {x: 0, y: 0}
+  Orbiting: 0
+  AdditiveOrbitRotation: 0
+  OrbitCenterTransform: {fileID: 0}
+  OrbitCenterOffset: {x: 0, y: 0, z: 0}
+  OrbitRotationAxis: {x: 0, y: 1, z: 0}
+  OrbitRotationSpeed: 10
+  OrbitRadius: 3
+  OrbitCorrectionSpeed: 10
+  DrawGizmos: 1
+  OrbitPlaneColor: {r: 54, g: 169, b: 225, a: 0.02}
+  OrbitLineColor: {r: 225, g: 225, b: 225, a: 0.1}
+  _orbitCenter: {x: 0, y: 0, z: 0}
+  _worldRotationAxis: {x: 0, y: 0, z: 0}
+  _snappedPosition: {x: 0, y: 0, z: 0}
+  _radius: {x: 0, y: 0, z: 0}
+--- !u!1 &1464521558423197835
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -334,8 +370,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2527545789338806384}
-  - component: {fileID: 4335127417329239120}
+  - component: {fileID: 4244527670203952471}
+  - component: {fileID: 3929473336365520646}
   m_Layer: 7
   m_Name: Art
   m_TagString: Untagged
@@ -343,29 +379,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2527545789338806384
+--- !u!4 &4244527670203952471
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2322863999027991436}
+  m_GameObject: {fileID: 1464521558423197835}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
-  m_ConstrainProportionsScale: 1
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4113724036145676309}
+  m_Father: {fileID: 4142185072875577160}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &4335127417329239120
+--- !u!212 &3929473336365520646
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2322863999027991436}
+  m_GameObject: {fileID: 1464521558423197835}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -407,7 +443,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5404541491151448104, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
+  m_Sprite: {fileID: 7064146660073765520, guid: f3e55ca7f29523841aa89a4091d1c01e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -417,7 +453,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &7015412709924612697
+--- !u!1 &2356613028589724535
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -425,7 +461,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4113724036145676309}
+  - component: {fileID: 4142185072875577160}
   m_Layer: 7
   m_Name: Scaler
   m_TagString: Untagged
@@ -433,19 +469,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4113724036145676309
+--- !u!4 &4142185072875577160
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7015412709924612697}
+  m_GameObject: {fileID: 2356613028589724535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2527545789338806384}
+  - {fileID: 4244527670203952471}
   m_Father: {fileID: 635093496372996903}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e5dc39c1c81bf84491622a4c84bf5aa, type: 3}
   m_Name: 0rbitLaunch
   m_EditorClassIdentifier: Assembly-CSharp::OrbitLobAimStrategy
-  maxPullDistance: 7
+  maxPullDistance: 5
   deadZonePull: 0.1
   forceUpward: 0
   sideDeadZone: 0.25

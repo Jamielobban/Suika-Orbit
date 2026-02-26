@@ -18,7 +18,7 @@ public class HeldSpawnJuicePlayer : MonoBehaviour
     {
         if (!player || !target) return;
        
-        Debug.Log("What");
+        //Debug.Log("What");
         squash.AnimateScaleTarget = target.gameObject.transform.GetChild(0);
 
         player.Initialization();
