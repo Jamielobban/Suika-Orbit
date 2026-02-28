@@ -110,7 +110,7 @@ public class FruitSpawner : MonoBehaviour
         if (holdSlotLevel < 0)
         {
             holdSlotLevel = currentLevel;
-            GameSignals.RaiseHoldChanged(holdSlotLevel); // you’ll add this to GameSignals if you want UI
+            //GameSignals.RaiseHoldChanged(holdSlotLevel); // you’ll add this to GameSignals if you want UI
 
             DestroyHeldImmediate();
 
@@ -124,7 +124,7 @@ public class FruitSpawner : MonoBehaviour
         // Slot has something: swap it with current
         int tmp = holdSlotLevel;
         holdSlotLevel = currentLevel;
-        GameSignals.RaiseHoldChanged(holdSlotLevel);
+       // GameSignals.RaiseHoldChanged(holdSlotLevel);
 
         DestroyHeldImmediate();
         SpawnHeldSpecific(tmp);

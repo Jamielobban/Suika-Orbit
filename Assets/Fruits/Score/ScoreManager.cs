@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -6,6 +7,8 @@ public class ScoreManager : MonoBehaviour
 
     [Tooltip("Extra % per combo step. 0.25 = +25% per combo.")]
     [SerializeField] private float comboStepBonus = 0.25f;
+
+    [SerializeField] MMF_Player scoreFeedback;
 
     public int Score { get; private set; }
 
@@ -29,6 +32,7 @@ public class ScoreManager : MonoBehaviour
         int gained = Mathf.RoundToInt(basePts * mult);
         Score += gained;
 
+        scoreFeedback?.PlayFeedbacks();
         GameSignals.RaiseScoreChanged(Score);
     }
 }

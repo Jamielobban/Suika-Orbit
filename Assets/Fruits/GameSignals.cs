@@ -47,11 +47,6 @@ public static class GameSignals
         // Copy so listeners can't mutate the internal queue and so it's safe to enumerate later
         NextFruitQueueChanged?.Invoke(new List<int>(queue));
     }
-
-    public static void RaiseHoldChanged(int holdLevel)
-    {
-        HoldChanged?.Invoke(holdLevel);
-    }
     public static event System.Action<int> BestScoreChanged;
     public static void RaiseBestScoreChanged(int best) => BestScoreChanged?.Invoke(best);
 }

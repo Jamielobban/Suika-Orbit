@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -8,7 +8,7 @@ public class NextFruitQueueUI : MonoBehaviour
     [SerializeField] private FruitDatabase database;
 
     [Header("UI")]
-    [SerializeField] private RectTransform container; // has Layout Group
+    [SerializeField] private RectTransform container; // has HorizontalLayoutGroup
     [SerializeField] private Image slotPrefab;
 
     [Header("Highlight")]
@@ -17,12 +17,21 @@ public class NextFruitQueueUI : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float firstAlpha = 1.0f;
     [SerializeField, Range(0f, 1f)] private float alphaFalloff = 0.15f;
 
-    [Header("Animation")]
-    [SerializeField] private float slidePixels = 28f;
-    [SerializeField] private float slideDuration = 0.15f;
-    [SerializeField] private Ease slideEase = Ease.OutCubic;
+    [Header("Scroll Animation (move container)")]
+    [Tooltip("How far the row shifts each update. Set to SlotWidth + LayoutGroup spacing.")]
+    [SerializeField] private float scrollPixels = 64f;
+    [SerializeField] private float scrollDuration = 0.15f;
+    [SerializeField] private Ease scrollEase = Ease.OutCubic;
+    [Tooltip("If true, new row appears as if it shifted from the right.")]
+    [SerializeField] private bool scrollFromRight = true;
+
+    [Header("Punch")]
+    [SerializeField] private float punchAmount = 0.12f;
+    [SerializeField] private float punchDuration = 0.18f;
+    [SerializeField] private float punchElasticity = 0.5f;
 
     private readonly List<Image> slots = new();
+    private bool hasInitialized;
 
     private void Awake()
     {
@@ -45,12 +54,14 @@ public class NextFruitQueueUI : MonoBehaviour
 
         EnsureSlots(queue.Count);
 
-        // Kill tweens so spam updates don’t stack
-        foreach (var img in slots)
+        // Kill tweens on slots + container so spam updates don't stack
+        container.DOKill(true);
+        for (int i = 0; i < slots.Count; i++)
         {
+            var img = slots[i];
             if (!img) continue;
-            img.rectTransform.DOKill();
-            img.DOKill();
+            img.rectTransform.DOKill(true);
+            img.DOKill(true);
         }
 
         // Update sprites
@@ -68,24 +79,29 @@ public class NextFruitQueueUI : MonoBehaviour
             }
         }
 
+        // Force layout so positions are correct before we animate the container
+        LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+
         ApplyHighlight(queue.Count);
 
-        if (queue.Count > 0 && slots[0].enabled)
+        // First time: just show, no scroll
+        if (!hasInitialized)
         {
-            var rt = slots[0].rectTransform;
-
-            // reset scale so punch is consistent
-            rt.localScale = Vector3.one * firstScale;
-
-            rt.DOPunchScale(
-                Vector3.one * 0.12f, // amount (tune 0.08–0.15)
-                0.18f,               // duration
-                1,                   // vibrato (1 = clean pop)
-                0.5f                 // elasticity (lower = snappier)
-            ).SetUpdate(true);
+            hasInitialized = true;
+            PunchFirst(queue.Count);
+            return;
         }
 
-        AnimateScroll(queue.Count);
+        // Scroll effect: offset container then tween back to base
+        Vector2 basePos = container.anchoredPosition;
+        float dir = scrollFromRight ? 1f : -1f;
+
+        container.anchoredPosition = basePos + new Vector2(scrollPixels * dir, 0f);
+        container.DOAnchorPos(basePos, scrollDuration)
+                 .SetEase(scrollEase)
+                 .SetUpdate(true);
+
+        PunchFirst(queue.Count);
     }
 
     private void EnsureSlots(int needed)
@@ -106,6 +122,12 @@ public class NextFruitQueueUI : MonoBehaviour
             var img = slots[i];
             if (!img) continue;
 
+            if (i >= count)
+            {
+                img.enabled = false;
+                continue;
+            }
+
             float scale = (i == 0) ? firstScale : otherScale;
             float alpha = (i == 0)
                 ? firstAlpha
@@ -117,26 +139,26 @@ public class NextFruitQueueUI : MonoBehaviour
             c.a = alpha;
             img.color = c;
 
-            if (i >= count) img.enabled = false;
+            img.enabled = true;
         }
     }
 
-    private void AnimateScroll(int count)
+    private void PunchFirst(int count)
     {
-        // Force layout so anchored positions are correct
-        LayoutRebuilder.ForceRebuildLayoutImmediate(container);
+        if (count <= 0) return;
+        var img = slots[0];
+        if (!img || !img.enabled) return;
 
-        for (int i = 0; i < count; i++)
-        {
-            var rt = slots[i].rectTransform;
+        var rt = img.rectTransform;
+        rt.DOKill(true);
 
-            Vector2 target = rt.anchoredPosition;
-            Vector2 start = target - new Vector2(0f, slidePixels);
+        rt.localScale = Vector3.one * firstScale;
 
-            rt.anchoredPosition = start;
-            rt.DOAnchorPos(target, slideDuration)
-              .SetEase(slideEase)
-              .SetUpdate(true); // UI should animate even if timescale = 0
-        }
+        rt.DOPunchScale(
+            Vector3.one * punchAmount,
+            punchDuration,
+            1,
+            punchElasticity
+        ).SetUpdate(true);
     }
 }

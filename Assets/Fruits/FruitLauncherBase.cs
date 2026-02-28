@@ -57,10 +57,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
     [SerializeField] private float maxPulseSpeed = 8f;
     [SerializeField] private float maxPulseAmount = 0.15f;
 
-    [Header("Fruit Squash")]
-    [SerializeField] private float squashAmount = 0.15f;
-    [SerializeField] private float squashSpeed = 10f;
-
     protected Fruit heldFruit;
     protected int heldLevel = -1;
 
@@ -186,7 +182,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
             heldFruit.transform.position = muzzle.position;
 
         UpdatePullLine(smoothedPointerWorld, a);
-        UpdateFruitSquash(a);
 
         UpdatePreviewVisual(a);
     }
@@ -231,28 +226,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
         pullLine.startColor = c;
         pullLine.endColor = c;
-    }
-
-    private void UpdateFruitSquash(AimResult a)
-    {
-        if (!heldFruit) return;
-
-        float target = 1f;
-
-        if (isAiming)
-        {
-            float squash = Mathf.Lerp(0f, squashAmount, a.power01);
-            target = 1f - squash;
-        }
-
-        Vector3 current = heldFruit.transform.localScale;
-        Vector3 desired = new Vector3(target, 1f + (1f - target), 1f);
-
-        heldFruit.transform.localScale = Vector3.Lerp(
-            current,
-            desired,
-            Time.deltaTime * squashSpeed
-        );
     }
 
     protected virtual void TryReleaseHeld()
