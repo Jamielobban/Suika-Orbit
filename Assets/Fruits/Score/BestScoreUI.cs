@@ -3,21 +3,14 @@ using UnityEngine;
 
 public class BestScoreUI : MonoBehaviour
 {
+    private const string BestKey = "BEST_SCORE";
+
     [SerializeField] private TMP_Text bestText;
 
-    private void OnEnable()
+    private void Start()
     {
-        GameSignals.BestScoreChanged += OnBestChanged;
-    }
-
-    private void OnDisable()
-    {
-        GameSignals.BestScoreChanged -= OnBestChanged;
-    }
-
-    private void OnBestChanged(int best)
-    {
-        if (!bestText) return;
-        bestText.text = best.ToString();
+        int best = PlayerPrefs.GetInt(BestKey, 0);
+        if (bestText)
+            bestText.text = best.ToString();
     }
 }

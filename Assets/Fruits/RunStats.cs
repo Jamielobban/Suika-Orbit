@@ -5,12 +5,11 @@ public class RunStats : MonoBehaviour
     private const string BestKey = "BEST_SCORE";
 
     public int Score { get; private set; }
-    public int BestScore { get; private set; }
+    private int bestScore;
 
     private void Awake()
     {
-        BestScore = PlayerPrefs.GetInt(BestKey, 0);
-        GameSignals.RaiseBestScoreChanged(BestScore);
+        bestScore = PlayerPrefs.GetInt(BestKey, 0);
     }
 
     private void OnEnable()
@@ -32,19 +31,17 @@ public class RunStats : MonoBehaviour
 
     private void OnGameOver()
     {
-        if (Score > BestScore)
+        if (Score > bestScore)
         {
-            BestScore = Score;
-            PlayerPrefs.SetInt(BestKey, BestScore);
+            bestScore = Score;
+
+            PlayerPrefs.SetInt(BestKey, bestScore);
             PlayerPrefs.Save();
-            GameSignals.RaiseBestScoreChanged(BestScore);
+
+            GameSignals.RaiseBestScoreChanged(bestScore);
         }
     }
 
-    // Call on restart if you want UI to reset instantly
-    public void ResetRun()
-    {
-        Score = 0;
-        GameSignals.RaiseScoreChanged(0);
-    }
+    [ContextMenu("Game Over")]
+    private void RaiseGameOver() { GameSignals.RaiseGameOver(); }
 }

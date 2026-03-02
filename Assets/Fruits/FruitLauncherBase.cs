@@ -112,7 +112,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (gameOver) return;
+        if (gameOver || GameInput.IsLocked) return;
 
         currentPointerScreen = pointAction.action.ReadValue<Vector2>();
         currentPointerWorld = ScreenToWorld(currentPointerScreen);
@@ -123,7 +123,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
     // ✅ FIXED: direct pointer read here
     protected virtual void OnPressPerformed(InputAction.CallbackContext ctx)
     {
-        if (gameOver || !heldFruit || spawnQueued || !muzzle || !cam)
+        if (gameOver || GameInput.IsLocked || !heldFruit || spawnQueued || !muzzle || !cam)
             return;
 
         Vector2 pointerScreen = pointAction.action.ReadValue<Vector2>();
@@ -139,6 +139,9 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
     protected virtual void OnPressCanceled(InputAction.CallbackContext ctx)
     {
+        if (GameInput.IsLocked)
+            return;
+
         if (!isAiming) return;
 
         isAiming = false;
