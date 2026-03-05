@@ -364,8 +364,35 @@ public abstract class FruitLauncherBase : MonoBehaviour
     protected virtual void OnGameOver()
     {
         gameOver = true;
+
+        // stop aiming + stop any pending spawn coroutine
+        isAiming = false;
+        pointerInit = false;
+
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
+            spawnRoutine = null;
+        }
+        spawnQueued = false;
+
         DestroyHeldImmediate();
-        enabled = false;
+
+        // IMPORTANT: do NOT disable this component
+        // enabled = false;
+    }
+
+    public void Revive()
+    {
+        gameOver = false;
+        isAiming = false;
+        pointerInit = false;
+
+        // if you want to continue with a fresh held fruit:
+        if (!heldFruit)
+            SpawnHeldFromQueue();
+
+        UpdateAimAndPreview();
     }
 
     protected Vector2 ScreenToWorld(Vector2 screenPos)

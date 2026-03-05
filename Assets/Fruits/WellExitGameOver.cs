@@ -1,26 +1,43 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-/// <summary>
-/// Game rule:
-/// - The well trigger is the "safe zone".
-/// - If ANY fruit exits the well and stays out for `timeOutsideToLose`, game over.
-/// - If all fruits are inside (or none have exited yet), timer is reset.
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class WellExitGameOver : MonoBehaviour
 {
+    [Header("Lose Rule")]
     [SerializeField] private LayerMask fruitMask;
     [SerializeField] private float timeOutsideToLose = 5f;
 
-    // Fruits currently inside the well trigger
-    private readonly HashSet<Fruit> inside = new();
+    [Tooltip("If true: a fruit only becomes 'eligible' after its CENTER has been inside at least once.")]
+    [SerializeField] private bool requireCenterEnteredOnce = true;
 
-    // Fruits currently outside AFTER having exited at least once
-    private readonly HashSet<Fruit> outside = new();
+    [Tooltip("Use Rigidbody2D.position when available (more accurate under physics).")]
+    [SerializeField] private bool useRigidbodyPosition = true;
 
+    [Header("Well Visual (Rim Color)")]
+    [SerializeField] private Renderer wellRenderer;
+    [SerializeField] private Material sourceMaterial;
+    [SerializeField] private Color safeRimColor = new(1f, 0.55f, 0.15f, 1f);
+    [SerializeField] private Color dangerRimColor = new(1f, 0.1f, 0.1f, 1f);
+    [SerializeField] private float colorLerpSpeed = 10f;
+
+    [Header("Danger Timer UI")]
+    [SerializeField] private TMP_Text dangerTimerText;   // drag a TextMeshProUGUI here
+    [SerializeField] private bool showDecimals = false;  // false = 3,2,1 ; true = 2.7,2.6...
+    [SerializeField] private int decimalPlaces = 1;      // only used if showDecimals = true
+
+    private static readonly int RimColorId = Shader.PropertyToID("_RimColor");
+
+    private readonly HashSet<Fruit> tracked = new();
+    private readonly HashSet<Fruit> centerEnteredOnce = new();
+
+    private Collider2D well;
     private float deadline = -1f;
     private bool fired;
+
+    private Material runtimeMat;
+    private Color currentRim;
 
     private void Reset()
     {
@@ -28,30 +45,89 @@ public class WellExitGameOver : MonoBehaviour
         c.isTrigger = true;
     }
 
+    private void Awake()
+    {
+        well = GetComponent<Collider2D>();
+        well.isTrigger = true;
+
+        if (!wellRenderer) wellRenderer = GetComponentInChildren<Renderer>();
+
+        if (sourceMaterial)
+        {
+            runtimeMat = Instantiate(sourceMaterial);
+            if (wellRenderer) wellRenderer.material = runtimeMat;
+        }
+        else if (wellRenderer)
+        {
+            runtimeMat = Instantiate(wellRenderer.material);
+            wellRenderer.material = runtimeMat;
+        }
+
+        currentRim = safeRimColor;
+        SetRimColor(currentRim, instant: true);
+
+        SetTimerUIVisible(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (runtimeMat) Destroy(runtimeMat);
+    }
+
     private void Update()
     {
         if (fired) return;
 
-        // clean dead refs
-        inside.RemoveWhere(f => f == null);
-        outside.RemoveWhere(f => f == null);
+        tracked.RemoveWhere(f => f == null);
+        centerEnteredOnce.RemoveWhere(f => f == null);
 
-        if (outside.Count > 0)
+        bool anyOutside = false;
+
+        foreach (var fruit in tracked)
         {
-            //Debug.Log("Time out started");
-            if (deadline < 0f) deadline = Time.time + timeOutsideToLose;
+            Vector2 center = GetFruitCenter(fruit);
+            bool centerInside = well.OverlapPoint(center);
+
+            if (requireCenterEnteredOnce && !centerEnteredOnce.Contains(fruit))
+            {
+                if (centerInside)
+                    centerEnteredOnce.Add(fruit);
+                continue;
+            }
+
+            if (!centerInside)
+            {
+                anyOutside = true;
+                break;
+            }
+        }
+
+        // Rim color
+        SetRimColor(anyOutside ? dangerRimColor : safeRimColor);
+
+        // Timer / game over + UI
+        if (anyOutside)
+        {
+            if (deadline < 0f)
+            {
+                deadline = Time.time + timeOutsideToLose;
+                SetTimerUIVisible(true);
+            }
+
+            float remaining = Mathf.Max(0f, deadline - Time.time);
+            UpdateTimerUI(remaining);
 
             if (Time.time >= deadline)
             {
                 fired = true;
+                SetTimerUIVisible(false);
                 GameSignals.RaiseGameOver();
-                Debug.Log("LMao u lost");
             }
         }
         else
         {
-            // nobody is currently outside -> reset timer
             deadline = -1f;
+            SetTimerUIVisible(false);
         }
     }
 
@@ -62,28 +138,53 @@ public class WellExitGameOver : MonoBehaviour
         var fruit = other.GetComponent<Fruit>();
         if (!fruit) return;
 
-        inside.Add(fruit);
-
-        // If it re-entered, it's no longer outside
-        outside.Remove(fruit);
-
-        // Optional: if that was the last outside fruit, timer resets next Update()
-        if (outside.Count == 0) deadline = -1f;
+        tracked.Add(fruit);
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private Vector2 GetFruitCenter(Fruit fruit)
     {
-        if (((1 << other.gameObject.layer) & fruitMask) == 0) return;
+        if (!fruit) return Vector2.zero;
 
-        var fruit = other.GetComponent<Fruit>();
-        if (!fruit) return;
+        if (useRigidbodyPosition)
+        {
+            var rb = fruit.GetComponent<Rigidbody2D>();
+            if (rb) return rb.position;
+        }
 
-        inside.Remove(fruit);
+        return fruit.transform.position;
+    }
 
-        // exiting means it is now outside (this is what we punish)
-        outside.Add(fruit);
+    private void SetRimColor(Color target, bool instant = false)
+    {
+        if (!runtimeMat) return;
 
-        // start timer immediately when the first fruit leaves
-        if (!fired && deadline < 0f) deadline = Time.time + timeOutsideToLose;
+        if (instant)
+            currentRim = target;
+        else
+            currentRim = Color.Lerp(currentRim, target, 1f - Mathf.Exp(-colorLerpSpeed * Time.deltaTime));
+
+        runtimeMat.SetColor(RimColorId, currentRim);
+    }
+
+    private void SetTimerUIVisible(bool visible)
+    {
+        if (!dangerTimerText) return;
+        dangerTimerText.gameObject.SetActive(visible);
+    }
+
+    private void UpdateTimerUI(float remaining)
+    {
+        if (!dangerTimerText) return;
+
+        if (!showDecimals)
+        {
+            // 2.1 -> 3, 2.0 -> 2
+            int secs = Mathf.CeilToInt(remaining);
+            dangerTimerText.text = secs.ToString();
+        }
+        else
+        {
+            dangerTimerText.text = remaining.ToString($"F{Mathf.Clamp(decimalPlaces, 0, 3)}");
+        }
     }
 }
