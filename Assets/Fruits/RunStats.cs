@@ -5,6 +5,8 @@ public class RunStats : MonoBehaviour
     private const string BestKey = "BEST_SCORE";
 
     public int Score { get; private set; }
+    public int BestScore => bestScore;
+
     private int bestScore;
 
     private void Awake()
@@ -43,5 +45,8 @@ public class RunStats : MonoBehaviour
     }
 
     [ContextMenu("Game Over")]
-    private void RaiseGameOver() { GameSignals.RaiseGameOver(); }
+    private void RaiseGameOver()
+    {
+        GameSignals.RaiseGameOver();
+    }
 }
