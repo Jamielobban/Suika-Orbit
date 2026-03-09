@@ -12,6 +12,8 @@ public static class GameSignals
 
     public static event Action GameOver;
 
+    public static event Action RunStarted;
+
     // --- Score / UI ---
     public static event Action<int> ScoreChanged;
 
@@ -37,6 +39,11 @@ public static class GameSignals
         GameOver?.Invoke();
     }
 
+    public static void RaiseRunStarted()
+    {
+        RunStarted?.Invoke();
+    }
+
     public static void RaiseScoreChanged(int score)
     {
         ScoreChanged?.Invoke(score);
@@ -44,9 +51,9 @@ public static class GameSignals
 
     public static void RaiseNextFruitQueueChanged(IEnumerable<int> queue)
     {
-        // Copy so listeners can't mutate the internal queue and so it's safe to enumerate later
         NextFruitQueueChanged?.Invoke(new List<int>(queue));
     }
-    public static event System.Action<int> BestScoreChanged;
+
+    public static event Action<int> BestScoreChanged;
     public static void RaiseBestScoreChanged(int best) => BestScoreChanged?.Invoke(best);
 }

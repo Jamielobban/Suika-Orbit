@@ -2127,7 +2127,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 5162927900319733861}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingsScreen, Assembly-CSharp
         m_MethodName: CloseSettings
         m_Mode: 1
@@ -2997,10 +2997,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3648968984106576329}
-  - component: {fileID: 5162927900319733861}
   - component: {fileID: 5045703912830371270}
   - component: {fileID: 2646339035363581618}
   - component: {fileID: 5713979043962148672}
+  - component: {fileID: 8282641364894690174}
   m_Layer: 5
   m_Name: SettingsMenu
   m_TagString: Untagged
@@ -3030,19 +3030,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5162927900319733861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6684864663824549772}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708c1c29a1a013c40863ce9ecbef4262, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SettingsScreen
-  settingsPanel: {fileID: 6684864663824549772}
 --- !u!114 &5045703912830371270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3107,6 +3094,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8282641364894690174
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6684864663824549772}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6763534304567883020
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8702118372241011703}
   - component: {fileID: 1924065780331372895}
   - component: {fileID: 5236412840406874005}
+  - component: {fileID: 8664334672142088758}
   m_Layer: 5
   m_Name: Game Over
   m_TagString: Untagged
@@ -77,6 +78,30 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8664334672142088758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422120634376617844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0feb2f6c1f5b1c48972e13fb0327ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverUIAnimator
+  runStats: {fileID: 0}
+  panel: {fileID: 6864692116585111605}
+  overlay: {fileID: 5801825118268156379}
+  title: {fileID: 8606297256982034092}
+  finalScoreLabel: {fileID: 2228118398956468054}
+  scoreText: {fileID: 9207027422136159690}
+  bestScoreText: {fileID: 0}
+  continueButtonGroup: {fileID: 5297793121059778952}
+  retryButtonGroup: {fileID: 2649900348305537298}
+  panelPopDuration: 0.35
+  scoreCountDuration: 0.9
+  buttonFadeDuration: 0.25
 --- !u!1 &982476457032508468
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,6 +114,7 @@ GameObject:
   - component: {fileID: 3698762088167558175}
   - component: {fileID: 7916328430319553222}
   - component: {fileID: 6405014905972885544}
+  - component: {fileID: 5297793121059778952}
   m_Layer: 5
   m_Name: Continue Button
   m_TagString: Untagged
@@ -199,6 +225,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &5297793121059778952
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982476457032508468}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1507292172360374243
 GameObject:
   m_ObjectHideFlags: 0
@@ -1012,6 +1050,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8606297256982034092}
+  - component: {fileID: 4873399322602331274}
   m_Layer: 5
   m_Name: Game Over
   m_TagString: Untagged
@@ -1039,6 +1078,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &4873399322602331274
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5580537491456431226}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6529281873007504682
 GameObject:
   m_ObjectHideFlags: 0
@@ -1051,6 +1102,7 @@ GameObject:
   - component: {fileID: 9131276487559186005}
   - component: {fileID: 1970363765866576061}
   - component: {fileID: 7943084856166602539}
+  - component: {fileID: 2649900348305537298}
   m_Layer: 5
   m_Name: Retry Button
   m_TagString: Untagged
@@ -1161,6 +1213,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &2649900348305537298
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6529281873007504682}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6620243484134558920
 GameObject:
   m_ObjectHideFlags: 0
@@ -1172,8 +1236,9 @@ GameObject:
   - component: {fileID: 1478984636943897230}
   - component: {fileID: 6635311692289426066}
   - component: {fileID: 1120390078498391754}
+  - component: {fileID: 5801825118268156379}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Overlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1236,6 +1301,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &5801825118268156379
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6620243484134558920}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6713202982188880909
 GameObject:
   m_ObjectHideFlags: 0

@@ -66,6 +66,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
     protected Coroutine spawnRoutine;
     protected bool isAiming;
     protected bool gameOver;
+    protected bool runStarted;
 
     private Vector2 currentPointerScreen;
     private Vector2 currentPointerWorld;
@@ -75,11 +76,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
     protected bool pointerInit;
 
     private readonly Collider2D[] overlapResults = new Collider2D[8];
-
-    protected virtual void Awake()
-    {
-        if (!cam) cam = Camera.main;
-    }
 
     protected virtual void OnEnable()
     {
@@ -103,16 +99,43 @@ public abstract class FruitLauncherBase : MonoBehaviour
         GameSignals.GameOver -= OnGameOver;
     }
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
+        if (!cam) cam = Camera.main;
+
+        runStarted = false;
+        gameOver = false;
+        isAiming = false;
+        pointerInit = false;
+        spawnQueued = false;
+
+        if (pullLine)
+            pullLine.enabled = false;
+    }
+
+    public virtual void BeginRun()
+    {
+        if (runStarted) return;
+
+        runStarted = true;
+        gameOver = false;
+        isAiming = false;
+        pointerInit = false;
+        spawnQueued = false;
+
+        if (heldFruit != null)
+            DestroyHeldImmediate();
+
         InitQueue();
         SpawnHeldFromQueue();
         UpdateAimAndPreview();
+
+        GameSignals.RaiseRunStarted();
     }
 
     protected virtual void Update()
     {
-        if (gameOver || GameInput.IsLocked) return;
+        if (!runStarted || gameOver || GameInput.IsLocked) return;
 
         currentPointerScreen = pointAction.action.ReadValue<Vector2>();
         currentPointerWorld = ScreenToWorld(currentPointerScreen);
@@ -120,10 +143,19 @@ public abstract class FruitLauncherBase : MonoBehaviour
         UpdateAimAndPreview();
     }
 
-    // ✅ FIXED: direct pointer read here
     protected virtual void OnPressPerformed(InputAction.CallbackContext ctx)
     {
-        if (gameOver || GameInput.IsLocked || !heldFruit || spawnQueued || !muzzle || !cam)
+        if (gameOver || GameInput.IsLocked)
+            return;
+
+        // First tap starts the run.
+        if (!runStarted)
+        {
+            BeginRun();
+            return;
+        }
+
+        if (!heldFruit || spawnQueued || !muzzle || !cam)
             return;
 
         Vector2 pointerScreen = pointAction.action.ReadValue<Vector2>();
@@ -139,7 +171,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
     protected virtual void OnPressCanceled(InputAction.CallbackContext ctx)
     {
-        if (GameInput.IsLocked)
+        if (!runStarted || GameInput.IsLocked)
             return;
 
         if (!isAiming) return;
@@ -152,7 +184,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
     protected virtual void UpdateAimAndPreview()
     {
-        if (!muzzle || !aimStrategy) return;
+        if (!muzzle || !aimStrategy || !runStarted) return;
 
         if (!pointerInit)
         {
@@ -185,7 +217,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
             heldFruit.transform.position = muzzle.position;
 
         UpdatePullLine(smoothedPointerWorld, a);
-
         UpdatePreviewVisual(a);
     }
 
@@ -195,7 +226,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
     {
         if (!pullLine) return;
 
-        if (!isAiming)
+        if (!isAiming || !runStarted)
         {
             pullLine.enabled = false;
             return;
@@ -233,7 +264,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
 
     protected virtual void TryReleaseHeld()
     {
-        if (gameOver || !heldFruit || spawnQueued)
+        if (!runStarted || gameOver || !heldFruit || spawnQueued)
             return;
 
         if (IsMuzzleBlockedByOtherFruit())
@@ -246,9 +277,9 @@ public abstract class FruitLauncherBase : MonoBehaviour
             heldLevel
         );
 
-        float shaped = powerCurve != null ?
-            powerCurve.Evaluate(a.power01) :
-            a.power01;
+        float shaped = powerCurve != null
+            ? powerCurve.Evaluate(a.power01)
+            : a.power01;
 
         float speed = Mathf.Lerp(minSpeed, maxSpeed, Mathf.Clamp01(shaped));
 
@@ -258,6 +289,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
         Destroy(heldFruit.GetComponent<MMAutoRotate>());
 
         heldFruit = null;
+        heldLevel = -1;
 
         Rigidbody2D rb = shot.GetComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Dynamic;
@@ -341,21 +373,26 @@ public abstract class FruitLauncherBase : MonoBehaviour
         heldFruit = Instantiate(prefab, muzzle.position, Quaternion.identity);
         heldLevel = level;
 
-        heldFruit.GetComponent<CircleCollider2D>().enabled = false;
+        CircleCollider2D col = heldFruit.GetComponent<CircleCollider2D>();
+        if (col) col.enabled = false;
 
         if (heldSpawnJuice != null)
             heldSpawnJuice.PlayOn(heldFruit.transform);
 
         Rigidbody2D rb = heldFruit.GetComponent<Rigidbody2D>();
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.gravityScale = 0f;
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
+        if (rb != null)
+        {
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
     }
 
     protected void DestroyHeldImmediate()
     {
         if (!heldFruit) return;
+
         Destroy(heldFruit.gameObject);
         heldFruit = null;
         heldLevel = -1;
@@ -364,8 +401,6 @@ public abstract class FruitLauncherBase : MonoBehaviour
     protected virtual void OnGameOver()
     {
         gameOver = true;
-
-        // stop aiming + stop any pending spawn coroutine
         isAiming = false;
         pointerInit = false;
 
@@ -374,12 +409,13 @@ public abstract class FruitLauncherBase : MonoBehaviour
             StopCoroutine(spawnRoutine);
             spawnRoutine = null;
         }
+
         spawnQueued = false;
 
         DestroyHeldImmediate();
 
-        // IMPORTANT: do NOT disable this component
-        // enabled = false;
+        if (pullLine)
+            pullLine.enabled = false;
     }
 
     public void Revive()
@@ -388,8 +424,7 @@ public abstract class FruitLauncherBase : MonoBehaviour
         isAiming = false;
         pointerInit = false;
 
-        // if you want to continue with a fresh held fruit:
-        if (!heldFruit)
+        if (!heldFruit && runStarted)
             SpawnHeldFromQueue();
 
         UpdateAimAndPreview();

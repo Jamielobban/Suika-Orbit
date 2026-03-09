@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 1339733299572743025}
   - component: {fileID: 4524645385799547189}
   - component: {fileID: 6848769061256474274}
-  - component: {fileID: 4419527176268592530}
   m_Layer: 7
   m_Name: Planet (0)
   m_TagString: Untagged
@@ -364,22 +363,6 @@ MonoBehaviour:
   _worldRotationAxis: {x: 0, y: 0, z: 0}
   _snappedPosition: {x: 0, y: 0, z: 0}
   _radius: {x: 0, y: 0, z: 0}
---- !u!114 &4419527176268592530
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 416474445991531329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d60157b5f79f4b4d8412e7f2fbcbaaa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FruitImpactFeedback
-  mmfPlayer: {fileID: 0}
-  minImpactSpeed: 1.2
-  maxImpactSpeed: 8
-  cooldown: 0.06
 --- !u!1 &753804225238937067
 GameObject:
   m_ObjectHideFlags: 0
