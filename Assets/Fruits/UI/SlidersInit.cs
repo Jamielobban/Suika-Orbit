@@ -4,7 +4,7 @@ using MoreMountains.Tools;
 
 public class MMSoundSlidersInit : MonoBehaviour
 {
-    [SerializeField] private Slider master;
+    //[SerializeField] private Slider master;
     [SerializeField] private Slider music;
     [SerializeField] private Slider sfx;
 
@@ -18,8 +18,8 @@ public class MMSoundSlidersInit : MonoBehaviour
         // Important: sync from mixer into the SO values
         so.GetTrackVolumes();
 
-        master.SetValueWithoutNotify(
-            so.GetTrackVolume(MMSoundManager.MMSoundManagerTracks.Master));
+        //master.SetValueWithoutNotify(
+            //so.GetTrackVolume(MMSoundManager.MMSoundManagerTracks.Master));
 
         music.SetValueWithoutNotify(
             so.GetTrackVolume(MMSoundManager.MMSoundManagerTracks.Music));
