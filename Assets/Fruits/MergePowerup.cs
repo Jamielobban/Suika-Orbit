@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
-/// Rewarded powerup: performs up to N merges by finding valid same-level pairs.
-/// Picks closest pairs to reduce chaos.
-/// Uses FruitMergeSystem.TryMerge to keep all existing VFX/score/combo logic.
+/// Rewarded powerup: performs up to N animated merges by finding valid same-level pairs.
+/// One fruit stays anchored, the other gets pulled into it, then the normal merge is triggered.
+/// Uses unscaled time so it works while game is paused.
 /// </summary>
 public class MergePowerup : MonoBehaviour
 {
@@ -20,15 +21,56 @@ public class MergePowerup : MonoBehaviour
     [SerializeField] private bool pickRandomLevelGroup = true;
 
     [Header("Safety")]
-    [Tooltip("Freeze fruit physics briefly while performing merges to avoid chain explosions.")]
-    [SerializeField] private float freezeSeconds = 0.05f;
+    [Tooltip("Freeze fruit physics while performing reward merges.")]
+    [SerializeField] private bool freezeBodiesDuringSequence = true;
 
     [Header("Gravity Center Source (optional)")]
     [Tooltip("If empty, we auto-find PointGravity2D at runtime when needed.")]
     [SerializeField] private PointGravity2D gravity;
 
-    // cache for speed
+    [Header("Reward Animation")]
+    [SerializeField] private float preDelay = 0.08f;
+    [SerializeField] private float highlightDuration = 0.12f;
+    [SerializeField] private float flyDuration = 0.22f;
+    [SerializeField] private float hitPause = 0.05f;
+    [SerializeField] private float betweenMergesDelay = 0.08f;
+
+    [Tooltip("How much both fruits scale up during the highlight.")]
+    [SerializeField] private float highlightScale = 1.12f;
+
+    [Tooltip("How much the anchor fruit punches on impact.")]
+    [SerializeField] private float anchorPunchScale = 0.18f;
+
+    [Tooltip("Optional ease for the flying fruit.")]
+    [SerializeField] private Ease flyEase = Ease.InQuad;
+
+    [Header("Optional FX")]
+    [Tooltip("Optional particle effect spawned at the anchor when the merge hits.")]
+    [SerializeField] private ParticleSystem impactBurstPrefab;
+
+    [Tooltip("Optional trail effect that gets parented to the moving fruit during flight.")]
+    [SerializeField] private ParticleSystem moverTrailPrefab;
+
+    [Tooltip("Optional ring/highlight object to spawn under both fruits before flight.")]
+    [SerializeField] private GameObject highlightRingPrefab;
+
+    [Header("Optional Visual Tint")]
+    [SerializeField] private bool tintSpritesDuringHighlight = true;
+    [SerializeField] private Color highlightColor = Color.white;
+
     private static readonly List<Fruit> _all = new(256);
+
+    private struct MergePair
+    {
+        public Fruit anchor;
+        public Fruit mover;
+
+        public MergePair(Fruit anchor, Fruit mover)
+        {
+            this.anchor = anchor;
+            this.mover = mover;
+        }
+    }
 
     public void TryApplyRandomMerges()
     {
@@ -37,56 +79,224 @@ public class MergePowerup : MonoBehaviour
 
     public void TryApplyRandomMerges(int mergeCount)
     {
-        StartCoroutine(DoMerges(mergeCount));
+        StartCoroutine(DoInstantMerges(mergeCount));
     }
 
-    private IEnumerator DoMerges(int mergeCount)
+    /// <summary>
+    /// New method: use this for rewarded continue while the game is paused.
+    /// </summary>
+    public IEnumerator PlayRewardMergeSequence(int mergeCount)
     {
-        // Optional small freeze so things don't explode while we delete/spawn
+        List<MergePair> pairs = PlanMergePairs(mergeCount);
+        if (pairs.Count == 0)
+            yield break;
+
+        Rigidbody2D[] frozenBodies = null;
+
+        if (freezeBodiesDuringSequence)
+            frozenBodies = FreezeAllFruitBodies(true);
+
+        yield return new WaitForSecondsRealtime(preDelay);
+
+        Vector2 gravityCenter = GetGravityCenter();
+
+        for (int i = 0; i < pairs.Count; i++)
+        {
+            MergePair pair = pairs[i];
+
+            if (!pair.anchor || !pair.mover)
+                continue;
+
+            yield return AnimateAndMergePair(pair.anchor, pair.mover, gravityCenter);
+
+            if (betweenMergesDelay > 0f)
+                yield return new WaitForSecondsRealtime(betweenMergesDelay);
+        }
+
+        if (freezeBodiesDuringSequence)
+            FreezeAllFruitBodies(false, frozenBodies);
+    }
+
+    private IEnumerator DoInstantMerges(int mergeCount)
+    {
         var bodies = FreezeAllFruitBodies(true);
-        if (freezeSeconds > 0f)
-            yield return new WaitForSecondsRealtime(freezeSeconds);
 
         for (int i = 0; i < mergeCount; i++)
         {
-            // Rebuild list each iteration because merges destroy/spawn fruits
             GetAllFruits(_all);
-
-            // Build groups by level where count >= 2
             var groups = BuildMergeGroups(_all);
             if (groups.Count == 0)
                 break;
 
             int chosenLevel = ChooseLevel(groups);
 
-            // pick two fruits from that level
             if (!TryPickPair(groups[chosenLevel], out Fruit a, out Fruit b))
                 break;
 
             Vector2 center = GetGravityCenter();
-            // Use an outward normal from gravity center so the spawned fruit is nudged away from the center
-            Vector2 origin = ((Vector2)a.transform.position + (Vector2)b.transform.position) * 0.5f;
-            Vector2 normal = (origin - center);
-            if (normal.sqrMagnitude < 1e-6f) normal = Vector2.up;
-            normal.Normalize();
-
-            // Call your existing merge system.
-            // collision=null is fine; it will use midpoint, but we want the "normal".
-            // Your FruitMergeSystem currently uses normal only when collision exists,
-            // so we pass a fake-ish normal by temporarily nudging via gravity center approach:
-            // -> easiest: just call TryMerge with collision=null and accept Vector2.up normal.
-            // However we can improve by adding an overload in FruitMergeSystem.
-            // For now: use collision=null and rely on safe placement.
             FruitMergeSystem.TryMerge(a, b, null, center);
 
-            // wait a FixedUpdate so spawned fruit gets enabled safely (your EnableSpawnedNextFixed runs next FixedUpdate)
+            // only safe when game isn't paused
             yield return new WaitForFixedUpdate();
         }
 
         FreezeAllFruitBodies(false, bodies);
     }
 
-    // ---------- Helpers ----------
+    private IEnumerator AnimateAndMergePair(Fruit anchor, Fruit mover, Vector2 gravityCenter)
+    {
+        if (!anchor || !mover)
+            yield break;
+
+        Transform anchorT = anchor.transform;
+        Transform moverT = mover.transform;
+
+        Vector3 anchorStartScale = anchorT.localScale;
+        Vector3 moverStartScale = moverT.localScale;
+
+        SpriteRenderer anchorSr = anchor.GetComponentInChildren<SpriteRenderer>();
+        SpriteRenderer moverSr = mover.GetComponentInChildren<SpriteRenderer>();
+
+        Color? anchorOriginalColor = null;
+        Color? moverOriginalColor = null;
+
+        if (tintSpritesDuringHighlight)
+        {
+            if (anchorSr) anchorOriginalColor = anchorSr.color;
+            if (moverSr) moverOriginalColor = moverSr.color;
+        }
+
+        GameObject ringA = null;
+        GameObject ringB = null;
+        ParticleSystem moverTrail = null;
+
+        if (highlightRingPrefab)
+        {
+            ringA = Instantiate(highlightRingPrefab, anchorT.position, Quaternion.identity);
+            ringB = Instantiate(highlightRingPrefab, moverT.position, Quaternion.identity);
+        }
+
+        if (moverTrailPrefab)
+        {
+            moverTrail = Instantiate(moverTrailPrefab, moverT.position, Quaternion.identity, moverT);
+        }
+
+        if (ringA) ringA.transform.localScale = Vector3.zero;
+        if (ringB) ringB.transform.localScale = Vector3.zero;
+
+        Sequence intro = DOTween.Sequence().SetUpdate(true);
+
+        intro.Join(anchorT.DOScale(anchorStartScale * highlightScale, highlightDuration).SetEase(Ease.OutBack));
+        intro.Join(moverT.DOScale(moverStartScale * highlightScale, highlightDuration).SetEase(Ease.OutBack));
+
+        if (ringA) intro.Join(ringA.transform.DOScale(1f, highlightDuration).SetEase(Ease.OutBack));
+        if (ringB) intro.Join(ringB.transform.DOScale(1f, highlightDuration).SetEase(Ease.OutBack));
+
+        if (tintSpritesDuringHighlight)
+        {
+            if (anchorSr) intro.Join(anchorSr.DOColor(highlightColor, highlightDuration));
+            if (moverSr) intro.Join(moverSr.DOColor(highlightColor, highlightDuration));
+        }
+
+        yield return intro.WaitForCompletion();
+
+        Vector3 anchorPos = anchorT.position;
+
+        Sequence pull = DOTween.Sequence().SetUpdate(true);
+
+        pull.Join(
+            moverT.DOMove(anchorPos, flyDuration)
+                .SetEase(flyEase)
+        );
+
+        pull.Join(
+            anchorT.DOPunchScale(Vector3.one * anchorPunchScale, flyDuration, 1, 0.2f)
+        );
+
+        if (ringB)
+        {
+            pull.Join(ringB.transform.DOScale(0.5f, flyDuration));
+        }
+
+        yield return pull.WaitForCompletion();
+
+        if (mover)
+            mover.transform.position = anchorPos;
+
+        if (impactBurstPrefab)
+            Instantiate(impactBurstPrefab, anchorPos, Quaternion.identity);
+
+        if (ringA) Destroy(ringA);
+        if (ringB) Destroy(ringB);
+        if (moverTrail) Destroy(moverTrail.gameObject);
+
+        if (anchorT)
+            anchorT.localScale = anchorStartScale;
+        if (moverT)
+            moverT.localScale = moverStartScale;
+
+        if (tintSpritesDuringHighlight)
+        {
+            if (anchorSr && anchorOriginalColor.HasValue) anchorSr.color = anchorOriginalColor.Value;
+            if (moverSr && moverOriginalColor.HasValue) moverSr.color = moverOriginalColor.Value;
+        }
+
+        yield return new WaitForSecondsRealtime(hitPause);
+
+        if (anchor && mover)
+            FruitMergeSystem.TryMerge(anchor, mover, null, gravityCenter);
+    }
+
+    private List<MergePair> PlanMergePairs(int mergeCount)
+    {
+        var result = new List<MergePair>(mergeCount);
+
+        GetAllFruits(_all);
+
+        // local working list so we can remove chosen fruits and not reuse them
+        List<Fruit> working = new List<Fruit>(_all);
+
+        for (int i = 0; i < mergeCount; i++)
+        {
+            var groups = BuildMergeGroups(working);
+            if (groups.Count == 0)
+                break;
+
+            int chosenLevel = ChooseLevel(groups);
+
+            if (!TryPickPair(groups[chosenLevel], out Fruit a, out Fruit b))
+                break;
+
+            ChooseAnchorAndMover(a, b, out Fruit anchor, out Fruit mover);
+
+            result.Add(new MergePair(anchor, mover));
+
+            working.Remove(a);
+            working.Remove(b);
+        }
+
+        return result;
+    }
+
+    private void ChooseAnchorAndMover(Fruit a, Fruit b, out Fruit anchor, out Fruit mover)
+    {
+        Vector2 center = GetGravityCenter();
+
+        float da = ((Vector2)a.transform.position - center).sqrMagnitude;
+        float db = ((Vector2)b.transform.position - center).sqrMagnitude;
+
+        // Keep the one closer to center as anchor so the result feels more stable
+        if (da <= db)
+        {
+            anchor = a;
+            mover = b;
+        }
+        else
+        {
+            anchor = b;
+            mover = a;
+        }
+    }
 
     private Vector2 GetGravityCenter()
     {
@@ -111,14 +321,12 @@ public class MergePowerup : MonoBehaviour
             if (f.isMerging) continue;
 
             var rb = f.GetComponent<Rigidbody2D>();
-            // ✅ Only merge fruits actually in the field (dynamic bodies)
             if (!rb || rb.bodyType != RigidbodyType2D.Dynamic) continue;
 
             outList.Add(f);
         }
     }
 
-    // groups[level] = list of fruits with that level
     private static Dictionary<int, List<Fruit>> BuildMergeGroups(List<Fruit> fruits)
     {
         var groups = new Dictionary<int, List<Fruit>>(16);
@@ -137,13 +345,14 @@ public class MergePowerup : MonoBehaviour
             list.Add(f);
         }
 
-        // remove any levels with <2
         var toRemove = new List<int>();
+
         foreach (var kv in groups)
         {
             if (kv.Value.Count < 2)
                 toRemove.Add(kv.Key);
         }
+
         for (int i = 0; i < toRemove.Count; i++)
             groups.Remove(toRemove[i]);
 
@@ -157,14 +366,18 @@ public class MergePowerup : MonoBehaviour
             int idx = Random.Range(0, groups.Count);
             foreach (var kv in groups)
             {
-                if (idx-- == 0) return kv.Key;
+                if (idx-- == 0)
+                    return kv.Key;
             }
         }
 
-        // pick highest level available
         int best = int.MinValue;
         foreach (var kv in groups)
-            if (kv.Key > best) best = kv.Key;
+        {
+            if (kv.Key > best)
+                best = kv.Key;
+        }
+
         return best;
     }
 
@@ -184,7 +397,8 @@ public class MergePowerup : MonoBehaviour
         }
 
         float best = float.PositiveInfinity;
-        Fruit bestA = null, bestB = null;
+        Fruit bestA = null;
+        Fruit bestB = null;
 
         for (int i = 0; i < list.Count; i++)
         {
@@ -240,6 +454,7 @@ public class MergePowerup : MonoBehaviour
                 if (reuse[i])
                     reuse[i].simulated = true;
             }
+
             return null;
         }
     }

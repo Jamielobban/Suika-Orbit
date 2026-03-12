@@ -103,6 +103,8 @@ public class GameLoopController : MonoBehaviour
 
         GameInput.Lock();
 
+        GameSignals.RaiseGameplayMusicDuckRequested();
+
         if (gameOverPanel)
             gameOverPanel.SetActive(true);
 
@@ -199,6 +201,10 @@ public class GameLoopController : MonoBehaviour
         if (watchAdButton)
             watchAdButton.interactable = false;
 
+        GameSignals.RaiseRetryStarted();
+        GameSignals.RaiseScoreCountupFinished();
+        GameSignals.RaiseGameplayMusicRestoreRequested();
+
         if (gameOverAnimator != null && gameOverPanel != null && gameOverPanel.activeSelf)
             yield return gameOverAnimator.PlayOutroAndDisable();
         else if (gameOverPanel != null)
@@ -254,23 +260,33 @@ public class GameLoopController : MonoBehaviour
             adUiRoutine = null;
         }
 
+        GameSignals.RaiseScoreCountupFinished();
+
         if (gameOverAnimator != null && gameOverPanel != null && gameOverPanel.activeSelf)
             yield return gameOverAnimator.PlayOutroAndDisable();
         else if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        GameInput.Lock();
+        isGameOver = true;
+        countdownDone = false;
+
+        GameSignals.RaiseContinueStarted();
+
+        if (mergePowerup)
+            yield return mergePowerup.PlayRewardMergeSequence(mergesOnContinue);
 
         if (pauseOnGameOver)
             Time.timeScale = 1f;
 
         GameInput.Unlock();
         isGameOver = false;
-        countdownDone = false;
-
-        if (mergePowerup)
-            mergePowerup.TryApplyRandomMerges(mergesOnContinue);
 
         if (launcher)
             launcher.Revive();
+
+        GameSignals.RaiseGameplayMusicRestoreRequested();
+        GameSignals.RaiseContinueFinished();
 
         transitionRoutine = null;
     }
@@ -280,5 +296,4 @@ public class GameLoopController : MonoBehaviour
     {
         GameSignals.RaiseGameOver();
     }
-
 }

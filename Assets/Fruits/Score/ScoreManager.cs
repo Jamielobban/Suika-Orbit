@@ -8,18 +8,26 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("Extra % per combo step. 0.25 = +25% per combo.")]
     [SerializeField] private float comboStepBonus = 0.25f;
 
-    [SerializeField] MMF_Player scoreFeedback;
+    [SerializeField] private MMF_Player scoreFeedback;
 
     public int Score { get; private set; }
 
     private void OnEnable()
     {
         GameSignals.FruitMerged += OnFruitMerged;
+        GameSignals.RunStarted += OnRunStarted;
     }
 
     private void OnDisable()
     {
         GameSignals.FruitMerged -= OnFruitMerged;
+        GameSignals.RunStarted -= OnRunStarted;
+    }
+
+    private void OnRunStarted()
+    {
+        Score = 0;
+        GameSignals.RaiseScoreChanged(Score);
     }
 
     private void OnFruitMerged(Vector2 pos, int newLevel, int combo)
@@ -33,6 +41,8 @@ public class ScoreManager : MonoBehaviour
         Score += gained;
 
         scoreFeedback?.PlayFeedbacks();
+
         GameSignals.RaiseScoreChanged(Score);
+        GameSignals.RaiseScoreFeedbackRequested(gained, combo, Score);
     }
 }
