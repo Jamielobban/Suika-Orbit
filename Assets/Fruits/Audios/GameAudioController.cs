@@ -66,24 +66,28 @@ public class GameAudioController : MonoBehaviour
 
     private void HandleGameOver()
     {
+        Debug.Log($"HandleGameOver fired frame {Time.frameCount}", this);
+
         if (gameOverFeedback != null)
             gameOverFeedback.PlayFeedbacks();
 
         FadeMusic(musicVolumeDuringGameOver);
     }
 
-    private void HandleContinueStarted()
-    {
-        if (continueStartedFeedback != null)
-            continueStartedFeedback.PlayFeedbacks();
-    }
-
     private void HandleContinueFinished()
     {
+        Debug.Log($"HandleContinueFinished fired frame {Time.frameCount}", this);
+
         if (continueFinishedFeedback != null)
             continueFinishedFeedback.PlayFeedbacks();
 
         FadeMusic(originalMusicVolume);
+    }
+
+    private void HandleContinueStarted()
+    {
+        if (continueStartedFeedback != null)
+            continueStartedFeedback.PlayFeedbacks();
     }
 
     private void HandleRetryStarted()

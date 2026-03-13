@@ -2,7 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-
+using MoreMountains.Feedbacks;
 public class GameOverUIAnimator : MonoBehaviour
 {
     [Header("Refs")]
@@ -18,6 +18,8 @@ public class GameOverUIAnimator : MonoBehaviour
     [SerializeField] private float introDuration = 0.35f;
     [SerializeField] private float outroDuration = 0.2f;
     [SerializeField] private float scoreDuration = 0.8f;
+
+    [SerializeField] private MMF_Player feedbacks;
 
     private Sequence currentSequence;
 
@@ -35,7 +37,6 @@ public class GameOverUIAnimator : MonoBehaviour
     public void PlayIntro()
     {
         currentSequence?.Kill();
-
         int finalScore = runStats != null ? runStats.Score : 0;
 
         if (overlay != null) overlay.alpha = 0f;
@@ -125,6 +126,7 @@ public class GameOverUIAnimator : MonoBehaviour
         .SetEase(Ease.OutCubic)
         .SetUpdate(true)
         .SetTarget(scoreText);
+        feedbacks?.PlayFeedbacks();
     }
 
     private void SetGroupState(CanvasGroup group, float alpha, bool interactable)
