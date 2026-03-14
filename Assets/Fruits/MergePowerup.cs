@@ -202,6 +202,9 @@ public class MergePowerup : MonoBehaviour
 
         Vector3 anchorPos = anchorT.position;
 
+        // fire event so audio / feedback systems can react
+        GameSignals.RaiseRewardMergeTargetSelected(anchorPos);
+
         Sequence pull = DOTween.Sequence().SetUpdate(true);
 
         pull.Join(

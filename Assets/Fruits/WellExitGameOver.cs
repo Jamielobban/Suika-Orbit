@@ -280,6 +280,8 @@ public class WellExitGameOver : MonoBehaviour
         if (!dangerTimerText)
             return;
 
+        GameSignals.RaiseWellExitTimerTick(displayedSecond);
+
         RectTransform rt = dangerTimerText.rectTransform;
 
         float intensity = displayedSecond <= 2 ? lowTimeIntensityMultiplier : 1f;

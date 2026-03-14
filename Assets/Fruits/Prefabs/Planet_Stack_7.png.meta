@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 89d2aec817b955449afdc4ffaefe16c0
+guid: d42034210db2aaf47a6e63ab33b44e0e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4549871927518758641
-    second: Test_0
+      213: 3376432151957951268
+    second: Planet_Stack_7_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,9 +46,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Test_0
+      name: Planet_Stack_7_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 235
-        width: 1024
-        height: 277
+        x: 144
+        y: 1965
+        width: 3084
+        height: 2412
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f09f8b2969b9bd0c0800000000000000
-      internalID: -4549871927518758641
+      spriteID: 42359a1372f7bde20800000000000000
+      internalID: 3376432151957951268
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Test_0: -4549871927518758641
+      Planet_Stack_7_0: 3376432151957951268
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

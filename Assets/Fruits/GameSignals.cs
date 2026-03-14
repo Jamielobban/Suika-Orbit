@@ -35,6 +35,12 @@ public static class GameSignals
     public static event Action<int> HoldChanged;
     public static event Action<int> BestScoreChanged;
 
+    // --- Well Exit ---
+    public static event Action<int> WellExitTimerTick;
+
+    // --- Reward Merge ---
+    public static event Action<Vector2> RewardMergeTargetSelected;
+
     // --- Raise helpers ---
     public static void RaiseFruitDropped(Fruit fruit)
     {
@@ -114,5 +120,15 @@ public static class GameSignals
     public static void RaiseBestScoreChanged(int best)
     {
         BestScoreChanged?.Invoke(best);
+    }
+
+    public static void RaiseWellExitTimerTick(int displayedSecond)
+    {
+        WellExitTimerTick?.Invoke(displayedSecond);
+    }
+
+    public static void RaiseRewardMergeTargetSelected(Vector2 position)
+    {
+        RewardMergeTargetSelected?.Invoke(position);
     }
 }

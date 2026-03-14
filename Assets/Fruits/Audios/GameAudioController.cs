@@ -24,6 +24,12 @@ public class GameAudioController : MonoBehaviour
     [SerializeField] private MMF_Player scoreCountupLoopFeedback;
     [SerializeField] private MMF_Player scoreCountupFinishedFeedback;
 
+    [Header("Well Exit Timer")]
+    [SerializeField] private MMF_Player wellExitTimerTickFeedback;
+
+    [Header("Reward Merge")]
+    [SerializeField] private MMF_Player rewardMergeSelectedFeedback;
+
     private float originalMusicVolume;
     private bool scoreLoopPlaying;
     private Tween musicTween;
@@ -43,6 +49,8 @@ public class GameAudioController : MonoBehaviour
         GameSignals.RetryStarted += HandleRetryStarted;
         GameSignals.ScoreCountupStarted += HandleScoreCountupStarted;
         GameSignals.ScoreCountupFinished += HandleScoreCountupFinished;
+        GameSignals.WellExitTimerTick += HandleWellExitTimerTick;
+        GameSignals.RewardMergeTargetSelected += HandleRewardMergeSelected;
     }
 
     private void OnDisable()
@@ -54,6 +62,8 @@ public class GameAudioController : MonoBehaviour
         GameSignals.RetryStarted -= HandleRetryStarted;
         GameSignals.ScoreCountupStarted -= HandleScoreCountupStarted;
         GameSignals.ScoreCountupFinished -= HandleScoreCountupFinished;
+        GameSignals.WellExitTimerTick -= HandleWellExitTimerTick;
+        GameSignals.RewardMergeTargetSelected -= HandleRewardMergeSelected;
 
         musicTween?.Kill();
     }
@@ -119,6 +129,18 @@ public class GameAudioController : MonoBehaviour
         scoreLoopPlaying = false;
     }
 
+    private void HandleWellExitTimerTick(int displayedSecond)
+    {
+        if (wellExitTimerTickFeedback != null)
+            wellExitTimerTickFeedback.PlayFeedbacks();
+    }
+
+    private void HandleRewardMergeSelected(Vector2 position)
+    {
+        if (rewardMergeSelectedFeedback != null)
+            rewardMergeSelectedFeedback.PlayFeedbacks();
+    }
+
     private void FadeMusic(float targetVolume)
     {
         if (musicSource == null)
@@ -128,6 +150,6 @@ public class GameAudioController : MonoBehaviour
 
         musicTween = musicSource
             .DOFade(targetVolume, musicFadeDuration)
-            .SetUpdate(true); // important since game is paused
+            .SetUpdate(true);
     }
 }
