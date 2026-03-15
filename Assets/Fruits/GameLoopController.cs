@@ -216,6 +216,44 @@ public class GameLoopController : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void BackToHome()
+    {
+        if (transitionRoutine != null)
+            return;
+
+        transitionRoutine = StartCoroutine(BackToHomeRoutine());
+    }
+
+    private IEnumerator BackToHomeRoutine()
+    {
+        if (watchAdButton)
+            watchAdButton.interactable = false;
+
+        if (adUiRoutine != null)
+        {
+            StopCoroutine(adUiRoutine);
+            adUiRoutine = null;
+        }
+
+        GameSignals.RaiseScoreCountupFinished();
+        GameSignals.RaiseGameplayMusicRestoreRequested();
+
+        if (gameOverAnimator != null && gameOverPanel != null && gameOverPanel.activeSelf)
+            yield return gameOverAnimator.PlayOutroAndDisable();
+        else if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+
+        Time.timeScale = 1f;
+        GameInput.Unlock();
+
+        isGameOver = false;
+        countdownDone = false;
+
+        RunStartOverlay.ResetSessionStartOverlay();
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     public void WatchAdToContinue()
     {
         if (transitionRoutine != null) return;

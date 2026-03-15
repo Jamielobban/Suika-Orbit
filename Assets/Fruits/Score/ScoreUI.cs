@@ -66,11 +66,11 @@ public class ScoreUI : MonoBehaviour
             countDuration
         ).SetEase(Ease.OutQuad);
 
-        punchTween = scoreText.transform.DOPunchScale(
-            Vector3.one * punchScale,
-            punchDuration,
-            6,
-            0.8f
-        );
+        //punchTween = scoreText.transform.DOPunchScale(
+        //    Vector3.one * punchScale,
+        //    punchDuration,
+        //    6,
+        //    0.8f
+        //);
     }
 }
